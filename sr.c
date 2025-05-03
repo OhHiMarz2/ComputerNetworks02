@@ -25,7 +25,7 @@
 #define RTT  16.0       /* round trip time.  MUST BE SET TO 16.0 when submitting assignment */
 #define WINDOWSIZE 6    /* the maximum number of buffered unacked packet
                           MUST BE SET TO 6 when submitting assignment */
-#define SEQSPACE 7      /* the min sequence space for GBN must be at least windowsize + 1 */
+#define SEQSPACE 12      /* the min sequence space for GBN must be at least windowsize + 1 */  // Changed for selective repeat
 #define NOTINUSE (-1)   /* used to fill header fields that are not being used */
 
 /* generic procedure to compute the checksum of a packet.  Used by both sender and receiver
@@ -61,6 +61,8 @@ static struct pkt buffer[WINDOWSIZE];  /* array for storing packets waiting for 
 static int windowfirst, windowlast;    /* array indexes of the first/last packet awaiting ACK */
 static int windowcount;                /* the number of packets currently awaiting an ACK */
 static int A_nextseqnum;               /* the next sequence number to be used by the sender */
+
+int acked[SEQSPACE] = {0}; // Array for storing ACKed packets
 
 /* called from layer 5 (application layer), passed the message to be sent to other side */
 void A_output(struct msg message)
@@ -134,18 +136,21 @@ void A_input(struct pkt packet)
               printf("----A: ACK %d is not a duplicate\n",packet.acknum);
             new_ACKs++;
 
-            /* cumulative acknowledgement - determine how many packets are ACKed */
-            if (packet.acknum >= seqfirst)
-              ackcount = packet.acknum + 1 - seqfirst;
-            else
-              ackcount = SEQSPACE - seqfirst + packet.acknum;
+            acked[packet.acknum] = 1; // Sets packet equal to 1 (ACKed)
 
-	    /* slide window by the number of packets ACKed */
-            windowfirst = (windowfirst + ackcount) % WINDOWSIZE;
-
-            /* delete the acked packets from window buffer */
-            for (i=0; i<ackcount; i++)
+            while (acked[seqfirst]) { // While loop to update continuous ACKd packets starting from base packet
+              acked[seqfirst] = 0;
+              seqfirst = (seqfirst + 1) % SEQSPACE;
               windowcount--;
+              ackcount++;
+          }
+              windowfirst = (windowfirst + ackcount) % WINDOWSIZE; // Slides windows based on number of ACKd packets
+              ackcount = 0;
+
+
+
+
+              
 
 	    /* start timer again if there are still more unacked packets in window */
             stoptimer(A);
