@@ -25,7 +25,7 @@
 #define RTT  16.0       /* round trip time.  MUST BE SET TO 16.0 when submitting assignment */
 #define WINDOWSIZE 6    /* the maximum number of buffered unacked packet
                           MUST BE SET TO 6 when submitting assignment */
-#define SEQSPACE 12      /* the min sequence space for GBN must be at least windowsize + 1 */  // Changed for selective repeat
+#define SEQSPACE 12      /* the min sequence space for GBN must be at least windowsize + 1 Changed for selective repeat */
 #define NOTINUSE (-1)   /* used to fill header fields that are not being used */
 
 /* generic procedure to compute the checksum of a packet.  Used by both sender and receiver
@@ -62,7 +62,7 @@ static int windowfirst, windowlast;    /* array indexes of the first/last packet
 static int windowcount;                /* the number of packets currently awaiting an ACK */
 static int A_nextseqnum;               /* the next sequence number to be used by the sender */
 
-int acked[SEQSPACE] = {0}; // Array for storing ACKed packets
+int acked[SEQSPACE] = {0}; /* Array for storing ACKed packets */
 
 /* called from layer 5 (application layer), passed the message to be sent to other side */
 void A_output(struct msg message)
@@ -136,15 +136,15 @@ void A_input(struct pkt packet)
               printf("----A: ACK %d is not a duplicate\n",packet.acknum);
             new_ACKs++;
 
-            acked[packet.acknum] = 1; // Sets packet equal to 1 (ACKed)
+            acked[packet.acknum] = 1; /* Sets packet equal to 1 (ACKed) */
 
-            while (acked[seqfirst]) { // While loop to update continuous ACKd packets starting from base packet
+            while (acked[seqfirst]) { /* While loop to update continuous ACKd packets starting from base packet */
               acked[seqfirst] = 0;
-              seqfirst = (seqfirst + 1) % SEQSPACE; // Updates base packet (moves up by 1)
+              seqfirst = (seqfirst + 1) % SEQSPACE; /* Updates base packet (moves up by 1) */
               windowcount--;
               ackcount++;
           }
-              windowfirst = (windowfirst + ackcount) % WINDOWSIZE; // Slides windows based on number of ACKd packets
+              windowfirst = (windowfirst + ackcount) % WINDOWSIZE; /* Slides windows based on number of ACKd packets */
               ackcount = 0;
 
 	    /* start timer again if there are still more unacked packets in window */
@@ -196,8 +196,8 @@ void A_init(void)
 
 static int expectedseqnum; /* the sequence number expected next by the receiver */
 static int B_nextseqnum;   /* the sequence number for the next packets sent by B */
-int duplicate[SEQSPACE] = {0}; // Array for storing received packets (1 = duplicate)
-struct pkt receiver_buffer[SEQSPACE]; // Stores received packets
+int duplicate[SEQSPACE] = {0}; /* Array for storing received packets (1 = duplicate) */
+struct pkt receiver_buffer[SEQSPACE]; /* Stores received packets */
 
 /* called from layer 3, when a packet arrives for layer 4 at B*/
 void B_input(struct pkt packet)
@@ -206,27 +206,27 @@ void B_input(struct pkt packet)
   int i;
   int count = 0;
 
-  /* if not corrupted and received packet is in order */ // Doesn't need to be in order
+  /* if not corrupted*/
   if  ( (!IsCorrupted(packet))) {
     if (TRACE > 0)
       printf("----B: packet %d is correctly received, send ACK!\n",packet.seqnum);
     packets_received++;
 
-    // Checks if packet has already been received (is a duplicate)
+    /* Checks if packet has already been received (is a duplicate) */
     if (duplicate[packet.seqnum] == 0) {
-      receiver_buffer[packet.seqnum] = packet; // Buffers the packet if not a duplicate
-      duplicate[packet.seqnum] = 1; // Sets duplicate flag to 1
+      receiver_buffer[packet.seqnum] = packet; /* Buffers the packet if not a duplicate */
+      duplicate[packet.seqnum] = 1; /* Sets duplicate flag to 1 */
     }
 
-    /* send an ACK for the received packet */ // Includes duplicates
+    /* send an ACK for the received packet */ /* Includes duplicates */
     sendpkt.acknum = packet.seqnum;
 
-    // Try to deliver in-order packets starting from expectedseqnum
+    /* Try to deliver in-order packets starting from expectedseqnum */
     while (duplicate[expectedseqnum]) {
       tolayer5(B, receiver_buffer[expectedseqnum].payload);
-      duplicate[expectedseqnum] = 0; // Clears flag once sent
+      duplicate[expectedseqnum] = 0; /* Clears flag once sent */
       /* update state variables */
-      expectedseqnum = (expectedseqnum + 1) % SEQSPACE; // Slides window forward by 1
+      expectedseqnum = (expectedseqnum + 1) % SEQSPACE; /* Slides window forward by 1 */
     }
 
   }
