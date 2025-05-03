@@ -59,7 +59,7 @@ bool IsCorrupted(struct pkt packet)
 
 static struct pkt buffer[WINDOWSIZE];  /* array for storing packets waiting for ACK */
 static int windowfirst, windowlast;    /* array indexes of the first/last packet awaiting ACK */
-static int windowcount;                /* the number of packets currently awaiting an ACK */
+static int windowcount = 0;                /* the number of packets currently awaiting an ACK */
 static int A_nextseqnum;               /* the next sequence number to be used by the sender */
 
 int acked[SEQSPACE] = {0}; /* Array for storing ACKed packets */
@@ -149,7 +149,7 @@ void A_input(struct pkt packet)
 
 	    /* start timer again if there are still more unacked packets in window */
             stoptimer(A);
-            if (windowfirst != A_nextseqnum)
+            if (windowcount > 0)
               starttimer(A, RTT);
 
           }
