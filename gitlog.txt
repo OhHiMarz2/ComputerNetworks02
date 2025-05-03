@@ -1,0 +1,44 @@
+commit 751ff692a2aeeed5f9926e4fcd27b8c7a44408fd
+Author: OhHiMarz2 <michael.marzinotto@student.adelaide.edu.au>
+Date:   Sat May 3 21:44:36 2025 +0930
+
+    Modified some timer related code
+
+commit 59f8e54dd6ebf43a320baad06f6e400863ce3c33
+Author: OhHiMarz2 <michael.marzinotto@student.adelaide.edu.au>
+Date:   Sat May 3 20:02:25 2025 +0930
+
+    Fixed comments and compiled
+
+commit bdde2176c9ccbe3fdadd83dea791c7cfd52a6806
+Author: OhHiMarz2 <michael.marzinotto@student.adelaide.edu.au>
+Date:   Sat May 3 19:51:07 2025 +0930
+
+    Changed timer to dynamically change to the oldest
+    unACKed packet
+
+commit 4c287da82b793e9ea46223421a5430d720de35eb
+Author: OhHiMarz2 <michael.marzinotto@student.adelaide.edu.au>
+Date:   Sat May 3 19:13:47 2025 +0930
+
+    Modified B_input to handle individual and out of
+    order packets
+
+commit 15875145858cc4d256448d71f961c46a1a133f6b
+Author: OhHiMarz2 <michael.marzinotto@student.adelaide.edu.au>
+Date:   Sat May 3 18:37:35 2025 +0930
+
+    Changed B_input to handle duplicates
+
+commit 5ce8c796bf07b8d5873562888a063b21491da0e6
+Author: OhHiMarz2 <michael.marzinotto@student.adelaide.edu.au>
+Date:   Sat May 3 17:46:11 2025 +0930
+
+    Modified A_input of ACKed packets to slide window
+    with contiguous packets starting from base packet
+
+commit 3c2c437717f7d6ac1ed41c183557d7b08a58bd0c
+Author: OhHiMarz2 <michael.marzinotto@student.adelaide.edu.au>
+Date:   Fri May 2 19:49:52 2025 +0930
+
+    First commit - Added files
