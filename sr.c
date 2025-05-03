@@ -150,7 +150,7 @@ void A_input(struct pkt packet)
 
 
 
-              
+
 
 	    /* start timer again if there are still more unacked packets in window */
             stoptimer(A);
@@ -209,7 +209,10 @@ void A_init(void)
 
 static int expectedseqnum; /* the sequence number expected next by the receiver */
 static int B_nextseqnum;   /* the sequence number for the next packets sent by B */
-
+int duplicate[SEQSPACE] = {0}; // Array for storing received packets (1 = duplicate)
+static struct pkt bufferB[WINDOWSIZE];  /* array for storing packets waiting for ACK */
+static int windowfirstB, windowlastB;    /* array indexes of the first/last packet awaiting ACK */
+static int windowcountB;                /* the number of packets currently awaiting an ACK */
 
 /* called from layer 3, when a packet arrives for layer 4 at B*/
 void B_input(struct pkt packet)
@@ -217,14 +220,18 @@ void B_input(struct pkt packet)
   struct pkt sendpkt;
   int i;
 
-  /* if not corrupted and received packet is in order */
-  if  ( (!IsCorrupted(packet))  && (packet.seqnum == expectedseqnum) ) {
+  /* if not corrupted and received packet is in order */ // Doesn't need to be in order
+  if  ( (!IsCorrupted(packet))) {
     if (TRACE > 0)
       printf("----B: packet %d is correctly received, send ACK!\n",packet.seqnum);
     packets_received++;
 
+
+    if (duplicate[packet.seqnum] == 0) {
     /* deliver to receiving application */
     tolayer5(B, packet.payload);
+    }
+    duplicate[packet.seqnum] = 1;
 
     /* send an ACK for the received packet */
     sendpkt.acknum = expectedseqnum;
