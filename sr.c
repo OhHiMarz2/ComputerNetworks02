@@ -140,21 +140,16 @@ void A_input(struct pkt packet)
 
             while (acked[seqfirst]) { // While loop to update continuous ACKd packets starting from base packet
               acked[seqfirst] = 0;
-              seqfirst = (seqfirst + 1) % SEQSPACE;
+              seqfirst = (seqfirst + 1) % SEQSPACE; // Updates base packet (moves up by 1)
               windowcount--;
               ackcount++;
           }
               windowfirst = (windowfirst + ackcount) % WINDOWSIZE; // Slides windows based on number of ACKd packets
               ackcount = 0;
 
-
-
-
-
-
 	    /* start timer again if there are still more unacked packets in window */
             stoptimer(A);
-            if (windowcount > 0)
+            if (windowfirst != A_nextseqnum)
               starttimer(A, RTT);
 
           }
@@ -171,22 +166,16 @@ void A_input(struct pkt packet)
 /* called when A's timer goes off */
 void A_timerinterrupt(void)
 {
-  int i;
-
   if (TRACE > 0)
     printf("----A: time out,resend packets!\n");
 
-  for(i=0; i<windowcount; i++) {
-
     if (TRACE > 0)
-      printf ("---A: resending packet %d\n", (buffer[(windowfirst+i) % WINDOWSIZE]).seqnum);
+      printf ("---A: resending packet %d\n", (buffer[(windowfirst) % WINDOWSIZE]).seqnum);
 
-    tolayer3(A,buffer[(windowfirst+i) % WINDOWSIZE]);
+    tolayer3(A,buffer[windowfirst % WINDOWSIZE]);
     packets_resent++;
-    if (i==0) starttimer(A,RTT);
+    starttimer(A,RTT);
   }
-}
-
 
 
 /* the following routine will be called once (only) before any other */
